@@ -1,0 +1,108 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Widget.SilverTube.AppWidget.Container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:theme="@style/Theme.SilverTube.AppWidgetContainer">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/startbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_alignParentLeft="true"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginRight="10dp"
+            android:backgroundTint="@color/purple_700"
+            android:text="시작"/>
+        <Button
+            android:id="@+id/endbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/white"
+            android:layout_alignParentRight="true"
+            android:backgroundTint="@color/purple_700"
+            android:text="종료"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/prevbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/purple_700"
+            android:text="이전"/>
+        <Button
+            android:id="@+id/nextbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_marginLeft="10dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/purple_700"
+            android:layout_weight="1"
+            android:text="다음"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_marginBottom="20dp"
+        android:layout_weight="1">
+
+        <Button
+            android:id="@+id/volumnupbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/purple_700"
+            android:text="크게"/>
+        <Button
+            android:id="@+id/volumndownbtn"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMaxTextSize="70dp"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="1"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/purple_700"
+            android:text="작게"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

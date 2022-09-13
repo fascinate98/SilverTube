@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SilverTube</string>
+    <string name="appwidget_text">EXAMPLE</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+
+
+    <string name="google_client_id">103321822749-jvtses8cia6egu8bf628haeai0f0eb8h.apps.googleusercontent.com</string>
+    <string name="google_client_secret">8OBlCo4nhkB11gjj5aOopUkg</string>
+    <string name="google_api_key">AIzaSyB_uR2muYzt97ud4cbjoGYhE3sMnUWBkmw</string>
+
+</resources>

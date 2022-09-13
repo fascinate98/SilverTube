@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.youtube.player.YouTubePlayerView
+        android:id="@+id/youTubePlayerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <EditText
+
+        android:id="@+id/playlistidtxt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="30dp"
+        app:layout_constraintTop_toBottomOf="@id/youTubePlayerView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="PLWssa6qoBjgotZ5KTJweFR_BL5OFjm4yB"
+        />
+
+
+
+    <Button
+        android:id="@+id/getplaylistbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="go"
+
+        app:layout_constraintTop_toBottomOf="@id/playlistidtxt"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        />
+
+    <Button
+        android:text="start"
+        android:id="@+id/startbtnn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/getplaylistbtn"
+        app:layout_constraintStart_toStartOf="parent"
+        />
+
+    <Button
+        android:text="end"
+        android:id="@+id/endbtnn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/getplaylistbtn"
+        app:layout_constraintLeft_toRightOf="@+id/startbtnn"
+        />
+
+    <Button
+        android:text="prev"
+        android:id="@+id/prevbtnn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/getplaylistbtn"
+        app:layout_constraintLeft_toRightOf="@+id/endbtnn"
+        />
+    <Button
+        android:text="next"
+        android:id="@+id/nextbtnn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/getplaylistbtn"
+        app:layout_constraintLeft_toRightOf="@+id/prevbtnn"
+        />
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
