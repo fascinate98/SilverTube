@@ -1,0 +1,7 @@
+
+{
+  "client_id": "103321822749-jvtses8cia6egu8bf628haeai0f0eb8h.apps.googleusercontent.com",
+  "redirect_uri": "com.googleusercontent.apps.103321822749-jvtses8cia6egu8bf628haeai0f0eb8h:/oauth2redirect",
+  "authorization_scope": "https://www.googleapis.com/auth/youtube",
+  "discovery_uri": "https://accounts.google.com/o/oauth2/auth"
+}
