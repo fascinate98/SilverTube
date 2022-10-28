@@ -1,5 +1,6 @@
 package com.fascinate98.silvertube
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -24,9 +25,18 @@ class MainWidget : AppWidgetProvider() {
     private val VUP_BTN = "com.fascinate98.silvertube.VUP_BTN"
     private val VDOWN_BTN = "com.fascinate98.silvertube.VDOWN_BTN"
     private lateinit var changeSetting: SettingYoutube
+    private lateinit var mcontext :Context
 
+    override fun onEnabled(context: Context) {
+        // Enter relevant functionality for when the first widget is created
+        changeSetting = SettingYoutube.getInstance(context)
+        //changeSetting.setObject()
+        mcontext = context
 
-    fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager , appWidgetId: Int ){
+        Toast.makeText(context, "앵애", Toast.LENGTH_SHORT).show()
+    }
+    @SuppressLint("RemoteViewLayout")
+    fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int ){
         val views = RemoteViews(context.packageName, R.layout.main_widget)
 
         val intent1 = Intent(context, MainWidget::class.java).setAction(PLAY_BTN)
@@ -88,6 +98,10 @@ class MainWidget : AppWidgetProvider() {
         val appWidgets = appWidgetManager.getAppWidgetIds(thisAppWidget)
         var action = intent?.action
         changeSetting = SettingYoutube.getInstance(context)
+
+
+
+
         when(action){
             PLAY_BTN -> {
                 changeSetting.play()
@@ -110,12 +124,12 @@ class MainWidget : AppWidgetProvider() {
 
         }
 
+        Toast.makeText(context, changeSetting.getNum().toString() + "/"+ changeSetting.getVideoIdList().size.toString() , Toast.LENGTH_SHORT).show()
+
+
     }
 
-    override fun onEnabled(context: Context) {
-        // Enter relevant functionality for when the first widget is created
-        changeSetting = SettingYoutube.getInstance(context)
-    }
+
 
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled

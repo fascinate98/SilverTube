@@ -7,6 +7,9 @@ import android.media.AudioManager
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.fascinate98.silvertube.network.ListResponse
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
@@ -21,6 +24,16 @@ class SettingYoutube() {
     companion object{
         private var instance: SettingYoutube? = null
         private lateinit var context: Context
+        private lateinit var mYoutubePlayer: YouTubePlayer
+        private lateinit var sharedPreferences: SharedPreferences
+        private var items: MutableList<ListResponse.Item> = mutableListOf()
+        private var videoIds: MutableList<String> = mutableListOf()
+        private var playlistId: String = ""
+        private var channelId: String = ""
+        private var num = 0
+        private var gson: Gson = GsonBuilder().create()
+        private lateinit var mAudioManager :AudioManager
+        private lateinit var youTubePlayerView : YouTubePlayerView
 
         fun getInstance(_context: Context): SettingYoutube{
             return instance?: synchronized(this){
@@ -31,16 +44,10 @@ class SettingYoutube() {
             }
         }
     }
-    private lateinit var mYoutubePlayer: YouTubePlayer
-    private lateinit var sharedPreferences: SharedPreferences
-    private var videoIds: MutableList<String> = mutableListOf()
-    private var playlistId: String = ""
-    private var channelId: String = ""
-    private var num = 0
-    private lateinit var mAudioManager :AudioManager
 
 
-    private lateinit var youTubePlayerView : YouTubePlayerView
+
+
 
     fun setObject(){
         mAudioManager = context.getSystemService(AppCompatActivity.AUDIO_SERVICE) as AudioManager
@@ -70,19 +77,24 @@ class SettingYoutube() {
     }
 
     fun getListFromSp(){
-        sharedPreferences = context.getSharedPreferences("log_check",
+        items.clear()
+        videoIds.clear()
+        sharedPreferences = context.getSharedPreferences("shared",
             AppCompatActivity.MODE_PRIVATE
         )
-        val getShred = sharedPreferences.getString("playlist", "")
-        var result = arrayListOf<String>()
+        var playliststr = sharedPreferences.getString("playlist", "")
+        if(!playliststr.equals("")) {
+            var json = JSONArray(playliststr)
+            for (i in 0 until json.length()) {
+                var a = gson.fromJson(json.optString(i), ListResponse.Item::class.java)
+                items.add(a)
+                videoIds.add(a.contentDetails.videoId)
 
-        var arrJson = JSONArray(getShred)
-        for(i in 0 until arrJson.length()){
-            result.add(arrJson.optString(i))
+            }
         }
-        videoIds = result
 
         val getnumsp = sharedPreferences.getInt("num", 0)
+        Toast.makeText(context, getnumsp.toString(), Toast.LENGTH_SHORT).show()
         num = getnumsp
     }
 
@@ -104,10 +116,14 @@ class SettingYoutube() {
 
 
     fun play(){
-        Toast.makeText(context, videoIds.size.toString(), Toast.LENGTH_SHORT).show()
+
         //mYoutubePlayer.play()
-        getListFromSp()
+        //getListFromSp()
+        Log.d("E", items.toString())
+        Log.d("ddd", num.toString())
+        //Toast.makeText(context, items.toString(), Toast.LENGTH_SHORT).show()
         mYoutubePlayer.loadVideo(videoIds[num] , 0f)
+        mYoutubePlayer.play()
     }
 
     fun pause(){
@@ -118,12 +134,18 @@ class SettingYoutube() {
         videoIds.add(videoId)
     }
 
+    fun selectVideo(){
+        num = sharedPreferences.getInt("num", 0)
+        Toast.makeText(context, num.toString(), Toast.LENGTH_SHORT).show()
+        mYoutubePlayer.loadVideo(videoIds[num], 0f)
+        mYoutubePlayer.play()
+    }
 
     fun playNextVideo(){
-        if(num < videoIds.size - 1){
+        if(num <= videoIds.size - 1){
             mYoutubePlayer.loadVideo(videoIds[++num] , 0f)
             sharedPreferences.edit().putInt("num", num).apply()
-            play()
+            mYoutubePlayer.play()
         }else{
             Toast.makeText( context, "마지막 영상", Toast.LENGTH_SHORT).show()
         }
@@ -133,7 +155,7 @@ class SettingYoutube() {
         if(num >= 1){
             mYoutubePlayer.loadVideo(videoIds[--num] , 0f)
             sharedPreferences.edit().putInt("num", num).apply()
-            play()
+            mYoutubePlayer.play()
         }else{
             Toast.makeText( context, "첫번쨰 영상", Toast.LENGTH_SHORT).show()
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SilverTube</string>
+    <string name="app_name">할머니 유튜브</string>
     <string name="appwidget_text">EXAMPLE</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
@@ -11,7 +11,7 @@
 
 
 
-    <string name="app_name_short">AppAuth</string>
+    <string name="app_name_short">할머니 유튜브</string>
     <string name="auth_granted">Authorization granted</string>
     <string name="intro_header">OpenID AppAuth Demo</string>
     <string name="openid_logo_content_description">AppAuth Logo</string>

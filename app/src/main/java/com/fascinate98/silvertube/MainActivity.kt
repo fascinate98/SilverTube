@@ -2,33 +2,30 @@ package com.fascinate98.silvertube
 
 
 import android.content.ContentValues.TAG
-import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
-import android.media.AudioManager
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.LinearLayout.VERTICAL
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.fascinate98.silvertube.databinding.ActivityMainBinding
 import com.fascinate98.silvertube.network.ListResponse
 import com.fascinate98.silvertube.network.YoutubeApi
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerError
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
-import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
 import org.json.JSONArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,19 +36,35 @@ class MainActivity : AppCompatActivity() {
     //private var videoIds: MutableList<String> = mutableListOf()
     private var playlistId: String = ""
     private var channelId: String = ""
+    private var items: MutableList<ListResponse.Item> = mutableListOf()
+    private lateinit var gson: Gson
     //private var num = 0
+    lateinit var listAdapter: ListAdapter
     private lateinit var changeSetting: SettingYoutube
+
+
+
+    init {
+        instace = this
+    }
+    companion object{
+        private var instace:MainActivity? = null
+        fun getInstacne():MainActivity?{
+            return instace
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //val mAudioManager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
-        //initYouTubePlayerView()
         changeSetting = SettingYoutube.getInstance(this)
-
         changeSetting.setObject()
-        sharedPreferences = getSharedPreferences("log_check", MODE_PRIVATE);
+        gson = GsonBuilder().create()
+        items.clear()
+        sharedPreferences = getSharedPreferences("shared", MODE_PRIVATE)
+        val it = Intent(this, MyService::class.java)
+        startService(it)
 
         if (sharedPreferences.getInt("isLogged", -1) == 1) {
             //youtube_player_view.visibility = View.VISIBLE;
@@ -59,35 +72,69 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
 
         }
+        var playliststr = sharedPreferences.getString("playlist", "")
+        if(!playliststr.equals("")){
+            var json = JSONArray(playliststr)
+            for(i in 0 until json.length()){
+
+                items.add(gson.fromJson(json.optString(i), ListResponse.Item::class.java))
+            }
+
+        }
+
+
 
         log_in.setOnClickListener {
             logIn()
         }
 
+        listAdapter = ListAdapter(this)
+        rv.adapter = listAdapter
+
+        listAdapter.datas = items
+        listAdapter.notifyDataSetChanged()
+        val decoration = DividerItemDecoration(this, VERTICAL)
+        rv.addItemDecoration(decoration)
+
         addplaylistbtn.setOnClickListener {
             playlistId = playlistidtxt.text.toString()
             var txt = playlistidtxt.text.toString()
-            var result : String
-            if(txt.contains("channel")){
+            var result: String
+            if (!txt.contains("list")) {
                 var arr = txt.split("/")
-                result = arr[arr.size -1]
+                result = arr[arr.size - 1]
                 channelId = result
+                Log.d("ddgdgdgdg" , channelId)
                 addAllChannelPlaylist()
-            }else{
-                result = txt.substring(txt.lastIndexOf("=")+1)
+            } else {
+                result = txt.substring(txt.lastIndexOf("=") + 1)
                 playlistId = result
+                Log.d("fff" , playlistId)
                 addPlaylist()
             }
 
 
-            Toast.makeText(this,result, Toast.LENGTH_SHORT).show()
-
+            Toast.makeText(this, result, Toast.LENGTH_SHORT).show()
+            playlistidtxt.text.clear()
         }
 
 
+        listAdapter.setOnItemClickListener(object : ListAdapter.OnItemClickListener{
+            override fun onItemClick(v: View, data: ListResponse.Item, pos: Int) {
+                selectvideo(pos)
+                //Toast.makeText(applicationContext, pos.toString(), Toast.LENGTH_SHORT).show()
+            }
+
+
+        })
+
         startbtnn.setOnClickListener {
             //mYoutubePlayer.play()
-            changeSetting.play()
+            //changeSetting.play()
+            sharedPreferences.edit().remove("playlist").apply()
+            sharedPreferences.edit().remove("num").apply()
+            items.clear()
+            listAdapter.notifyDataSetChanged()
         }
 
         endbtnn.setOnClickListener {
@@ -106,65 +153,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         volumnupbtnn.setOnClickListener {
-
-//            mAudioManager.adjustStreamVolume(
-//                AudioManager.STREAM_MUSIC,
-//                AudioManager.ADJUST_RAISE,
-//                AudioManager.FLAG_SHOW_UI)
             changeSetting.volumnUp()
 
         }
 
         volumndownbtnbtnn.setOnClickListener {
-
-//            mAudioManager.adjustStreamVolume(
-//                AudioManager.STREAM_MUSIC,
-//                AudioManager.ADJUST_LOWER,
-//                AudioManager.FLAG_SHOW_UI)
-//        }
             changeSetting.volumnDown()
         }
 
-//    private fun playNextVideo(){
-//        if(num < videoIds.size - 1){
-//            mYoutubePlayer.loadVideo(videoIds[++num] , 0f)
-//        }else{
-//            Toast.makeText( this, "마지막 영상", Toast.LENGTH_SHORT).show()
-//        }
-//    }
-//
-//    private fun playPrevVideo(){
-//        if(num >= 1){
-//            mYoutubePlayer.loadVideo(videoIds[--num] , 0f)
-//        }else{
-//            Toast.makeText( this, "첫번쨰 영상", Toast.LENGTH_SHORT).show()
-//        }
-//    }
     }
 
-    private fun initYouTubePlayerView() {
-        var youtu = YouTubePlayerView(this)
-        youtu.enableBackgroundPlayback(true)
-        youtu.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
-            override fun onReady(youTubePlayer: YouTubePlayer) {
-                super.onReady(youTubePlayer)
-                changeSetting.setYoutubePlayer(youTubePlayer)
-            }
+    fun deletevideo(position:Int){
+        items.removeAt(position)
+        saveInSp()
+        Log.d("dssss", position.toString())
+        listAdapter.notifyDataSetChanged()
+    }
 
-            override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
-                if(state == PlayerConstants.PlayerState.ENDED){
-                    changeSetting.playNextVideo()
-                }
-            }
-
-            override fun onError(youTubePlayer: YouTubePlayer, error: PlayerError) {
-                super.onError(youTubePlayer, error)
-                if (error == PlayerError.VIDEO_NOT_PLAYABLE_IN_EMBEDDED_PLAYER) {
-                    logIn()
-                }
-            }
-        })
-
+    fun selectvideo(position: Int){
+        sharedPreferences.edit().putInt("num", position).apply()
+        changeSetting.selectVideo()
     }
 
     private fun logIn() {
@@ -201,7 +209,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun addPlaylist(){
-        YoutubeApi.apiInstance().playlistItems("contentDetails", playlistId).enqueue(object: Callback<ListResponse> {
+        YoutubeApi.apiInstance().playlistItems("snippet, contentDetails", playlistId).enqueue(object: Callback<ListResponse> {
             override fun onResponse(
                 call: Call<ListResponse>,
                 response: Response<ListResponse>
@@ -209,32 +217,38 @@ class MainActivity : AppCompatActivity() {
                 Log.d(TAG, "onResponse: ${response.isSuccessful}")
                 val result = response.body()!!.items
 
-                //sp에서 현재값 json -> string배열
-                val getShred = sharedPreferences.getString("playlist", "")
-                var oldvideolist = arrayListOf<String>()
-
-                var arrJson = JSONArray(getShred)
-                for(i in 0 until arrJson.length()){
-                    oldvideolist.add(arrJson.optString(i))
-                }
+                Log.d(TAG, response.body().toString())
+//                //sp에서 현재값 json -> string배열
+//                val getShred = sharedPreferences.getString("playlist", "")
+//                var oldvideolist = arrayListOf<String>()
+//
+//                var arrJson = JSONArray(getShred)
+//                for(i in 0 until arrJson.length()){
+//                    oldvideolist.add(arrJson.optString(i))
+//                }
 
                 //추가
                 for(i in result) {
-                    oldvideolist.add(i.contentDetails.videoId)
+                    items.add(i)
+
                 }
 
-
+                //Toast.makeText(applicationContext, result[0].snippet.title, Toast.LENGTH_SHORT).show()
+                saveInSp()
+                listAdapter.notifyDataSetChanged()
                 //다시 제이슨으로 변환
-                var jsonArr = JSONArray()
-                for(i in oldvideolist){
-                    jsonArr.put(i)
-                }
-                var stringData = jsonArr.toString()
+//                var jsonArr = JSONArray()
+//                for(i in items){
+//
+//                    jsonArr.put(gson.toJson(i, ListResponse.Item::class.java))
+//                }
+//                var stringData = jsonArr.toString()
+//                Log.d("dddddddddd" , stringData.toString())
+//                Log.d("dd22dddddddd" , items.size.toString())
+//                sharedPreferences.edit().putString("playlist", stringData).apply()
+                //sharedPreferences.edit().putInt("num", items.size - 1).apply()
 
-                sharedPreferences.edit().putString("playlist", stringData).apply()
-                sharedPreferences.edit().putInt("num", oldvideolist.size - 1).apply()
-
-                Toast.makeText(applicationContext, stringData + " " + oldvideolist.size , Toast.LENGTH_SHORT).show()
+               // Toast.makeText(applicationContext, stringData + " " + oldvideolist.size , Toast.LENGTH_SHORT).show()
 
 
                 //changeSetting.getYoutubePlayer().cueVideo(changeSetting.getVideoIdList()[changeSetting.getNum()],0f)
@@ -247,15 +261,31 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun saveInSp(){
+        var jsonArr = JSONArray()
+        for(i in items){
+
+            jsonArr.put(gson.toJson(i, ListResponse.Item::class.java))
+        }
+        var stringData = jsonArr.toString()
+        Log.d("dddddddddd" , stringData.toString())
+        Log.d("dd22dddddddd" , items.size.toString())
+        sharedPreferences.edit().putString("playlist", stringData).apply()
+        changeSetting.getListFromSp()
+    }
+
     private fun addAllChannelPlaylist(){
 
-        YoutubeApi.apiInstance().playList("id", channelId).enqueue(object: Callback<ListResponse> {
+        YoutubeApi.apiInstance().playList("snippet, id", channelId).enqueue(object: Callback<ListResponse> {
             override fun onResponse(
                 call: Call<ListResponse>,
                 response: Response<ListResponse>
             ) {
                 Log.d(TAG, "onResponse: ${response.isSuccessful}")
+                Log.d("dddfffffffffffffffffffffffff" , response.body().toString())
                 val result = response.body()!!.items
+
+
 
                 for(i in result) {
                     playlistId = i.id
