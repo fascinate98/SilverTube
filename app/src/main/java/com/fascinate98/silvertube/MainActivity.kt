@@ -2,6 +2,7 @@ package com.fascinate98.silvertube
 
 
 import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.SharedPreferences
 import android.media.AudioManager
 import android.os.Bundle
@@ -20,37 +21,40 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstan
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants.PlayerError
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.YouTubePlayer
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.listeners.AbstractYouTubePlayerListener
+import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main.view.*
+import org.json.JSONArray
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
-
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var binding: ActivityMainBinding
-    private lateinit var mYoutubePlayer: YouTubePlayer
+    //private lateinit var mYoutubePlayer: YouTubePlayer
     private lateinit var bottomSheetDialog: BottomSheetDialog
-    private var videoIds: MutableList<String> = mutableListOf()
+    //private var videoIds: MutableList<String> = mutableListOf()
     private var playlistId: String = ""
     private var channelId: String = ""
-    private var num = 0
-    private var volumn = 0
+    //private var num = 0
+    private lateinit var changeSetting: SettingYoutube
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        //val mAudioManager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
+        //initYouTubePlayerView()
+        changeSetting = SettingYoutube.getInstance(this)
 
-        val mAudioManager = applicationContext.getSystemService(AUDIO_SERVICE) as AudioManager
-        initYouTubePlayerView()
-
+        changeSetting.setObject()
         sharedPreferences = getSharedPreferences("log_check", MODE_PRIVATE);
 
         if (sharedPreferences.getInt("isLogged", -1) == 1) {
-            youtube_player_view.visibility = View.VISIBLE;
+            //youtube_player_view.visibility = View.VISIBLE;
             log_in.visibility = View.GONE;
             Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
 
@@ -62,76 +66,94 @@ class MainActivity : AppCompatActivity() {
 
         addplaylistbtn.setOnClickListener {
             playlistId = playlistidtxt.text.toString()
-            addPlaylist()
+            var txt = playlistidtxt.text.toString()
+            var result : String
+            if(txt.contains("channel")){
+                var arr = txt.split("/")
+                result = arr[arr.size -1]
+                channelId = result
+                addAllChannelPlaylist()
+            }else{
+                result = txt.substring(txt.lastIndexOf("=")+1)
+                playlistId = result
+                addPlaylist()
+            }
+
+
+            Toast.makeText(this,result, Toast.LENGTH_SHORT).show()
 
         }
 
-        addchannelbtn.setOnClickListener {
-            channelId = channelidtxt.text.toString()
-            addAllChannelPlaylist()
-        }
 
         startbtnn.setOnClickListener {
-            mYoutubePlayer.play()
+            //mYoutubePlayer.play()
+            changeSetting.play()
         }
 
         endbtnn.setOnClickListener {
-            mYoutubePlayer.pause()
+            //mYoutubePlayer.pause()
+            changeSetting.pause()
         }
 
         nextbtnn.setOnClickListener {
-           playNextVideo()
+            //playNextVideo()
+            changeSetting.playNextVideo()
         }
 
         prevbtnn.setOnClickListener {
-            playPrevVideo()
+            //playPrevVideo()
+            changeSetting.playPrevVideo()
         }
 
         volumnupbtnn.setOnClickListener {
 
-            mAudioManager.adjustStreamVolume(
-                AudioManager.STREAM_MUSIC,
-                AudioManager.ADJUST_RAISE,
-                AudioManager.FLAG_SHOW_UI)
+//            mAudioManager.adjustStreamVolume(
+//                AudioManager.STREAM_MUSIC,
+//                AudioManager.ADJUST_RAISE,
+//                AudioManager.FLAG_SHOW_UI)
+            changeSetting.volumnUp()
 
         }
 
         volumndownbtnbtnn.setOnClickListener {
 
-            mAudioManager.adjustStreamVolume(
-                AudioManager.STREAM_MUSIC,
-                AudioManager.ADJUST_LOWER,
-                AudioManager.FLAG_SHOW_UI)
+//            mAudioManager.adjustStreamVolume(
+//                AudioManager.STREAM_MUSIC,
+//                AudioManager.ADJUST_LOWER,
+//                AudioManager.FLAG_SHOW_UI)
+//        }
+            changeSetting.volumnDown()
         }
-    }
 
-    private fun playNextVideo(){
-        if(num < videoIds.size - 1){
-            mYoutubePlayer.loadVideo(videoIds[++num] , 0f)
-        }else{
-            Toast.makeText( this, "마지막 영상", Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun playPrevVideo(){
-        if(num >= 1){
-            mYoutubePlayer.loadVideo(videoIds[--num] , 0f)
-        }else{
-            Toast.makeText( this, "첫번쨰 영상", Toast.LENGTH_SHORT).show()
-        }
+//    private fun playNextVideo(){
+//        if(num < videoIds.size - 1){
+//            mYoutubePlayer.loadVideo(videoIds[++num] , 0f)
+//        }else{
+//            Toast.makeText( this, "마지막 영상", Toast.LENGTH_SHORT).show()
+//        }
+//    }
+//
+//    private fun playPrevVideo(){
+//        if(num >= 1){
+//            mYoutubePlayer.loadVideo(videoIds[--num] , 0f)
+//        }else{
+//            Toast.makeText( this, "첫번쨰 영상", Toast.LENGTH_SHORT).show()
+//        }
+//    }
     }
 
     private fun initYouTubePlayerView() {
-
-        youtube_player_view.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
+        var youtu = YouTubePlayerView(this)
+        youtu.enableBackgroundPlayback(true)
+        youtu.addYouTubePlayerListener(object : AbstractYouTubePlayerListener() {
             override fun onReady(youTubePlayer: YouTubePlayer) {
                 super.onReady(youTubePlayer)
-                mYoutubePlayer = youTubePlayer
+                changeSetting.setYoutubePlayer(youTubePlayer)
             }
 
             override fun onStateChange(youTubePlayer: YouTubePlayer, state: PlayerConstants.PlayerState) {
                 if(state == PlayerConstants.PlayerState.ENDED){
-                    playNextVideo()
+                    changeSetting.playNextVideo()
                 }
             }
 
@@ -164,7 +186,7 @@ class MainActivity : AppCompatActivity() {
                     || request.url.toString().startsWith("https://www.youtube.com")
                 ) {
                     sharedPreferences.edit().putInt("isLogged", 1).apply()
-                    youtube_player_view.visibility = View.VISIBLE
+                   // youtube_player_view.visibility = View.VISIBLE
                     log_in.visibility = View.GONE
                     startbtnn.visibility = View.VISIBLE
                     bottomSheetDialog.dismiss()
@@ -186,10 +208,36 @@ class MainActivity : AppCompatActivity() {
             ) {
                 Log.d(TAG, "onResponse: ${response.isSuccessful}")
                 val result = response.body()!!.items
-                for(i in result) {
-                    videoIds.add(i.contentDetails.videoId)
+
+                //sp에서 현재값 json -> string배열
+                val getShred = sharedPreferences.getString("playlist", "")
+                var oldvideolist = arrayListOf<String>()
+
+                var arrJson = JSONArray(getShred)
+                for(i in 0 until arrJson.length()){
+                    oldvideolist.add(arrJson.optString(i))
                 }
-                mYoutubePlayer.cueVideo(videoIds[num],0f)
+
+                //추가
+                for(i in result) {
+                    oldvideolist.add(i.contentDetails.videoId)
+                }
+
+
+                //다시 제이슨으로 변환
+                var jsonArr = JSONArray()
+                for(i in oldvideolist){
+                    jsonArr.put(i)
+                }
+                var stringData = jsonArr.toString()
+
+                sharedPreferences.edit().putString("playlist", stringData).apply()
+                sharedPreferences.edit().putInt("num", oldvideolist.size - 1).apply()
+
+                Toast.makeText(applicationContext, stringData + " " + oldvideolist.size , Toast.LENGTH_SHORT).show()
+
+
+                //changeSetting.getYoutubePlayer().cueVideo(changeSetting.getVideoIdList()[changeSetting.getNum()],0f)
             }
 
 

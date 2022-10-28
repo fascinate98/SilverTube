@@ -40,7 +40,15 @@
             android:name=".MainWidget"
             android:exported="false">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+
+                <action android:name="com.fascinate98.silvertube.PLAY_BTN"/>
+                <action android:name="com.fascinate98.silvertube.PAUSE_BTN"/>
+                <action android:name="com.fascinate98.silvertube.PREV_BTN"/>
+                <action android:name="com.fascinate98.silvertube.NEXT_BTN"/>
+                <action android:name="com.fascinate98.silvertube.VUP_BTN"/>
+                <action android:name="com.fascinate98.silvertube.VDOWN_BTN"/>
+
             </intent-filter>
 
             <meta-data
