@@ -1,8 +1,7 @@
 # SilverTube
 
 <p align="center"><img src="https://user-images.githubusercontent.com/51151970/198916471-09aab37b-c15e-4c1c-ae10-12d91b9d18b5.png" width="30%" height="30%"></p>
-이 프로젝트는 
-[황반변성](https://namu.wiki/w/황반변성)
+이 프로젝트는 [황반변성](https://namu.wiki/w/%ED%99%A9%EB%B0%98%EB%B3%80%EC%84%B1)
 을 앓고 계신 외할머니를 위해 만들었습니다. 
 책 읽어주는 유튜브를 즐겨 들으시는데, 눈이 거의 안보이셔서 유튜브앱 실행이나 검색은 물론 play/pause 버튼 터치조차도 버거워하십니다.
 그래서 할머니가 자주 사용할 기능을 최대한 크게! 잘보이게! 쉽게! 만드는것을 목표로 잡았습니다.
