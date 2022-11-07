@@ -101,3 +101,19 @@
 1. 안드에 space키 눌림 신호 줬을때 유튭 멈춤/재생 작동하는지?
 2. 무선충전 리시버를 구매했다. 근데 핸드폰이 아니라서 충전단자부분이 아래쪽이아니라 옆쪽에 달려서,, 케이스 제대로 끼고도 작동하려면 약간의 개조가 필요할듯.
 3. 만약 1번이 안되면 .. 키 눌렸을때 키코드값 구할수 있나..? 안드가..? 
+
+```
+@Override 
+public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+    switch (keyCode) {
+        case KeyEvent.KEYCODE_A:
+        {
+            //your Action code
+            return true;
+        }
+    }
+    return super.onKeyDown(keyCode, event);
+}
+```
+된다고 한다. 하드웨어면 상관없이 되는듯. 이러면 1번이 불가능하면 그냥 키코드 암거나 주고 케이스주면 되겠다. 야호!
